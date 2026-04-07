@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>製図室ポータル</title>
     <style>
-        /* ここからがCSS（デザインのルール）です */
         body {
             font-family: sans-serif;
             margin: 0;
-            background-color: #f4f4f9; /* 背景をほんのりグレーに */
+            background-color: #f4f4f9;
         }
         header {
-            background-color: #333; /* ヘッダーを黒に */
+            background-color: #333;
             color: white;
             padding: 15px;
             text-align: center;
@@ -20,7 +19,7 @@
         .container {
             padding: 20px;
         }
-        .menu-btn {
+        .menu-btn, .back-btn {
             display: block;
             width: 100%;
             padding: 15px;
@@ -30,14 +29,17 @@
             text-align: center;
             color: white;
             border: none;
-            border-radius: 8px; /* 角を丸くする */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 少し影をつける */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer; /* 押せる雰囲気を出す */
         }
-        .qr-btn {
-            background-color: #007BFF; /* 青色 */
-        }
-        .garbage-btn {
-            background-color: #28a745; /* 緑色 */
+        .qr-btn { background-color: #007BFF; }
+        .garbage-btn { background-color: #28a745; }
+        .back-btn { background-color: #6c757d; margin-top: 20px;}
+        
+        /* 最初はメインメニュー以外を隠す設定 */
+        #qr-screen, #garbage-screen {
+            display: none; 
         }
     </style>
 </head>
@@ -46,11 +48,34 @@
         <h1>製図室ポータル</h1>
     </header>
     
-    <div class="container">
+    <div id="main-menu" class="container">
         <p>使いたい機能を選んでください</p>
-        
-        <button class="menu-btn qr-btn">📦 置き荷物・QR登録</button>
-        <button class="menu-btn garbage-btn">🗑️ 今週のゴミ当番</button>
+        <button class="menu-btn qr-btn" onclick="showScreen('qr-screen')">📦 置き荷物・QR登録</button>
+        <button class="menu-btn garbage-btn" onclick="showScreen('garbage-screen')">🗑️ 今週のゴミ当番</button>
     </div>
+
+    <div id="qr-screen" class="container">
+        <h2>📦 置き荷物・QR登録</h2>
+        <p>ここに、名前と期限を入力してQRコードを発行する仕組みを作ります。</p>
+        <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
+    </div>
+
+    <div id="garbage-screen" class="container">
+        <h2>🗑️ 今週のゴミ当番</h2>
+        <p>ここに、グループごとのゴミ当番スケジュールを表示します。</p>
+        <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            // 一旦すべての画面を隠す
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('qr-screen').style.display = 'none';
+            document.getElementById('garbage-screen').style.display = 'none';
+            
+            // 指定された画面だけを表示する
+            document.getElementById(screenId).style.display = 'block';
+        }
+    </script>
 </body>
 </html>
