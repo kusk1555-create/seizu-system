@@ -19,7 +19,7 @@
         .container {
             padding: 20px;
         }
-        .menu-btn, .back-btn {
+        .menu-btn, .back-btn, .action-btn {
             display: block;
             width: 100%;
             padding: 15px;
@@ -31,15 +31,38 @@
             border: none;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            cursor: pointer; /* 押せる雰囲気を出す */
+            cursor: pointer;
         }
         .qr-btn { background-color: #007BFF; }
         .garbage-btn { background-color: #28a745; }
+        .action-btn { background-color: #ff9800; } /* 作成ボタンはオレンジ色 */
         .back-btn { background-color: #6c757d; margin-top: 20px;}
         
-        /* 最初はメインメニュー以外を隠す設定 */
         #qr-screen, #garbage-screen {
             display: none; 
+        }
+
+        /* 入力フォームのデザイン */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        #qr-result {
+            margin-top: 20px;
+            text-align: center;
+            display: none; /* 最初はQR画像を隠しておく */
         }
     </style>
 </head>
@@ -55,8 +78,28 @@
     </div>
 
     <div id="qr-screen" class="container">
-        <h2>📦 置き荷物・QR登録</h2>
-        <p>ここに、名前と期限を入力してQRコードを発行する仕組みを作ります。</p>
+        <h2>📦 荷物情報を入力</h2>
+        
+        <div class="input-group">
+            <label>氏名（グループ名）</label>
+            <input type="text" id="owner-name" placeholder="例：建築太郎">
+        </div>
+        <div class="input-group">
+            <label>荷物の種類</label>
+            <input type="text" id="item-name" placeholder="例：スチレンボード、中間模型">
+        </div>
+        <div class="input-group">
+            <label>撤去期限</label>
+            <input type="date" id="deadline">
+        </div>
+
+        <button class="action-btn" onclick="generateQR()">QRコードを作成</button>
+
+        <div id="qr-result">
+            <p>▼ この画像を保存・印刷して荷物に貼ってください</p>
+            <img id="qr-image" src="" alt="QRコード">
+        </div>
+
         <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
     </div>
 
@@ -67,14 +110,37 @@
     </div>
 
     <script>
+        // 画面切り替えのプログラム
         function showScreen(screenId) {
-            // 一旦すべての画面を隠す
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('qr-screen').style.display = 'none';
             document.getElementById('garbage-screen').style.display = 'none';
             
-            // 指定された画面だけを表示する
             document.getElementById(screenId).style.display = 'block';
+        }
+
+        // QRコードを作成するプログラム
+        function generateQR() {
+            // 1. 入力された文字を取得する
+            const name = document.getElementById('owner-name').value;
+            const item = document.getElementById('item-name').value;
+            const deadline = document.getElementById('deadline').value;
+
+            // 2. 入力忘れがないかチェックする
+            if (name === '' || item === '' || deadline === '') {
+                alert('すべての項目を入力してください！');
+                return;
+            }
+
+            // 3. QRコードの中身になる文章を作る
+            const qrText = `持ち主:${name} / 荷物:${item} / 期限:${deadline}`;
+
+            // 4. 無料のQR生成APIを使って画像URLを作る（日本語を安全な形式に変換）
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
+
+            // 5. 画面に画像を表示する
+            document.getElementById('qr-image').src = qrUrl;
+            document.getElementById('qr-result').style.display = 'block';
         }
     </script>
 </body>
