@@ -19,7 +19,7 @@
         .container {
             padding: 20px;
         }
-        .menu-btn, .back-btn, .action-btn {
+        .menu-btn, .back-btn, .action-btn, .print-btn {
             display: block;
             width: 100%;
             padding: 15px;
@@ -35,7 +35,8 @@
         }
         .qr-btn { background-color: #007BFF; }
         .garbage-btn { background-color: #28a745; }
-        .action-btn { background-color: #ff9800; } /* 作成ボタンはオレンジ色 */
+        .action-btn { background-color: #ff9800; } 
+        .print-btn { background-color: #17a2b8; margin-top: 15px; } /* 印刷ボタン用 */
         .back-btn { background-color: #6c757d; margin-top: 20px;}
         
         #qr-screen, #garbage-screen {
@@ -62,7 +63,43 @@
         #qr-result {
             margin-top: 20px;
             text-align: center;
-            display: none; /* 最初はQR画像を隠しておく */
+            display: none;
+        }
+        
+        /* ラベルテキストのデザイン */
+        #qr-text-display {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.5;
+            text-align: left;
+            display: inline-block;
+            background: #fff;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+        }
+
+        /* 印刷時の専用レイアウト（プリント用CSS） */
+        @media print {
+            body * {
+                visibility: hidden; /* ページ内の全要素を一旦非表示 */
+            }
+            #print-area, #print-area * {
+                visibility: visible; /* 印刷エリアだけを表示 */
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                text-align: center;
+                margin-top: 0;
+            }
+            #qr-text-display {
+                border: none; /* 印刷時は枠線を消す */
+                font-size: 18px; /* 印刷時に見やすいよう文字を少し大きく */
+            }
         }
     </style>
 </head>
@@ -89,6 +126,10 @@
             <input type="text" id="item-name" placeholder="例：スチレンボード、中間模型">
         </div>
         <div class="input-group">
+            <label>現在の置き場所</label>
+            <input type="text" id="location" placeholder="例：窓際の棚、A列の机">
+        </div>
+        <div class="input-group">
             <label>撤去期限</label>
             <input type="date" id="deadline">
         </div>
@@ -97,7 +138,13 @@
 
         <div id="qr-result">
             <p>▼ この画像を保存・印刷して荷物に貼ってください</p>
-            <img id="qr-image" src="" alt="QRコード">
+            
+            <div id="print-area">
+                <img id="qr-image" src="" alt="QRコード">
+                <div id="qr-text-display"></div>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">🖨️ ラベルを印刷する</button>
         </div>
 
         <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
@@ -110,7 +157,6 @@
     </div>
 
     <script>
-        // 画面切り替えのプログラム
         function showScreen(screenId) {
             document.getElementById('main-menu').style.display = 'none';
             document.getElementById('qr-screen').style.display = 'none';
@@ -119,27 +165,33 @@
             document.getElementById(screenId).style.display = 'block';
         }
 
-        // QRコードを作成するプログラム
         function generateQR() {
-            // 1. 入力された文字を取得する
             const name = document.getElementById('owner-name').value;
             const item = document.getElementById('item-name').value;
+            const location = document.getElementById('location').value; // 追加
             const deadline = document.getElementById('deadline').value;
 
-            // 2. 入力忘れがないかチェックする
-            if (name === '' || item === '' || deadline === '') {
+            // 入力チェック（置き場所も必須化）
+            if (name === '' || item === '' || location === '' || deadline === '') {
                 alert('すべての項目を入力してください！');
                 return;
             }
 
-            // 3. QRコードの中身になる文章を作る
-            const qrText = `持ち主:${name} / 荷物:${item} / 期限:${deadline}`;
-
-            // 4. 無料のQR生成APIを使って画像URLを作る（日本語を安全な形式に変換）
+            // QRコード用テキスト
+            const qrText = `持ち主:${name} / 荷物:${item} / 場所:${location} / 期限:${deadline}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
 
-            // 5. 画面に画像を表示する
+            // 画面表示・印刷用の見やすいテキスト
+            const labelText = `
+                👤 持ち主：${name}<br>
+                📦 荷物　：${item}<br>
+                📍 場所　：${location}<br>
+                ⏳ 期限　：${deadline}
+            `;
+
+            // 画像とテキストをセットして表示
             document.getElementById('qr-image').src = qrUrl;
+            document.getElementById('qr-text-display').innerHTML = labelText;
             document.getElementById('qr-result').style.display = 'block';
         }
     </script>
