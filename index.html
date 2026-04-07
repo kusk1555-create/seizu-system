@@ -36,7 +36,7 @@
         .qr-btn { background-color: #007BFF; }
         .garbage-btn { background-color: #28a745; }
         .action-btn { background-color: #ff9800; } 
-        .print-btn { background-color: #17a2b8; margin-top: 15px; } /* 印刷ボタン用 */
+        .print-btn { background-color: #17a2b8; margin-top: 15px; }
         .back-btn { background-color: #6c757d; margin-top: 20px;}
         
         #qr-screen, #garbage-screen {
@@ -83,10 +83,10 @@
         /* 印刷時の専用レイアウト（プリント用CSS） */
         @media print {
             body * {
-                visibility: hidden; /* ページ内の全要素を一旦非表示 */
+                visibility: hidden;
             }
             #print-area, #print-area * {
-                visibility: visible; /* 印刷エリアだけを表示 */
+                visibility: visible;
             }
             #print-area {
                 position: absolute;
@@ -97,8 +97,8 @@
                 margin-top: 0;
             }
             #qr-text-display {
-                border: none; /* 印刷時は枠線を消す */
-                font-size: 18px; /* 印刷時に見やすいよう文字を少し大きく */
+                border: none;
+                font-size: 18px;
             }
         }
     </style>
@@ -110,12 +110,12 @@
     
     <div id="main-menu" class="container">
         <p>使いたい機能を選んでください</p>
-        <button class="menu-btn qr-btn" onclick="showScreen('qr-screen')">📦 置き荷物・QR登録</button>
-        <button class="menu-btn garbage-btn" onclick="showScreen('garbage-screen')">🗑️ 今週のゴミ当番</button>
+        <button class="menu-btn qr-btn" onclick="showScreen('qr-screen')">置き荷物・QR登録</button>
+        <button class="menu-btn garbage-btn" onclick="showScreen('garbage-screen')">今週のゴミ当番</button>
     </div>
 
     <div id="qr-screen" class="container">
-        <h2>📦 荷物情報を入力</h2>
+        <h2>荷物情報を入力</h2>
         
         <div class="input-group">
             <label>氏名（グループ名）</label>
@@ -144,14 +144,14 @@
                 <div id="qr-text-display"></div>
             </div>
 
-            <button class="print-btn" onclick="window.print()">🖨️ ラベルを印刷する</button>
+            <button class="print-btn" onclick="window.print()">ラベルを印刷する</button>
         </div>
 
         <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
     </div>
 
     <div id="garbage-screen" class="container">
-        <h2>🗑️ 今週のゴミ当番</h2>
+        <h2>今週のゴミ当番</h2>
         <p>ここに、グループごとのゴミ当番スケジュールを表示します。</p>
         <button class="back-btn" onclick="showScreen('main-menu')">◀ メニューに戻る</button>
     </div>
@@ -168,28 +168,24 @@
         function generateQR() {
             const name = document.getElementById('owner-name').value;
             const item = document.getElementById('item-name').value;
-            const location = document.getElementById('location').value; // 追加
+            const location = document.getElementById('location').value;
             const deadline = document.getElementById('deadline').value;
 
-            // 入力チェック（置き場所も必須化）
             if (name === '' || item === '' || location === '' || deadline === '') {
                 alert('すべての項目を入力してください！');
                 return;
             }
 
-            // QRコード用テキスト
             const qrText = `持ち主:${name} / 荷物:${item} / 場所:${location} / 期限:${deadline}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
 
-            // 画面表示・印刷用の見やすいテキスト
             const labelText = `
-                👤 持ち主：${name}<br>
-                📦 荷物　：${item}<br>
-                📍 場所　：${location}<br>
-                ⏳ 期限　：${deadline}
+                持ち主：${name}<br>
+                荷物　：${item}<br>
+                場所　：${location}<br>
+                期限　：${deadline}
             `;
 
-            // 画像とテキストをセットして表示
             document.getElementById('qr-image').src = qrUrl;
             document.getElementById('qr-text-display').innerHTML = labelText;
             document.getElementById('qr-result').style.display = 'block';
